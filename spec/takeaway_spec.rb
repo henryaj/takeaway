@@ -38,6 +38,9 @@ describe Takeaway do
 	end
 
 	it 'should send a text saying that your order will be delivered in one hour' do
+		twilio = mock(Twilio::Rest::Client)
+		twilio.should_receive(:new).once.with(any_args()).and_return(twapi)
+		expect(Takeaway.send_message).to eq true
 		end
 
 
