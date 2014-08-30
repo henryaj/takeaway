@@ -1,4 +1,5 @@
 require 'takeaway'
+require 'webmock/rspec'
 
 describe Takeaway do
 	
@@ -38,9 +39,11 @@ describe Takeaway do
 	end
 
 	it 'should send a text saying that your order will be delivered in one hour' do
-		twilio = mock(Twilio::Rest::Client)
-		twilio.should_receive(:new).once.with(any_args()).and_return(twapi)
-		expect(Takeaway.send_message).to eq true
+		t = Time.now + (60*60)
+    @delivery_time = t.strftime("%H:%M")
+		stub_request(:post, "https://#{Secrets::ACCOUNT_SID}:#{Secrets::AUTH_TOKEN}@api.twilio.com/*").
+         with(:body => {"Body"=>"Thanks for your order! Your meal will be delivered by #{@delivery_time}. You fat bastard", "From"=>"+441803503004", "To"=>"+447986347379"}).
+         to_return(:status => 200, :body => "", :headers => {})
 		end
 
 
