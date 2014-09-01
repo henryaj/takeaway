@@ -1,8 +1,13 @@
 require 'takeaway'
+require 'twilio'
 require 'webmock/rspec'
 
 describe Takeaway do
-	
+
+	before do
+		stub_request(:post, "https://*:*@api.twilio.com")
+	end
+
 	it 'should list all dishes' do	
 		expect(Takeaway::PRICE_LIST).to include("Fiorentina", "Hawaiian", "Margherita", "Pepperoni", "dip")
 	end
@@ -24,27 +29,31 @@ describe Takeaway do
 		expect(Takeaway.user_total).to eq 23
 	end
 
-	xit 'should take each order line and split it into quantity and item' do
+	it 'should then split the order string into pairs of quantity and product' do
+		expect(Takeaway.get_quantities_and_products(["1 Fiorentina", "2 Margherita", "1 dip"])).to eq([[1, "Fiorentina"], [2, "Margherita"], [1, "dip"]])
+	end
+
+	it 'should then substitute each dish' do
+		expect(Takeaway.substitute_in_prices([[1, "Fiorentina"], [2, "Margherita"], [1, "dip"]])).to eq([[1, 8], [2, 6], [1, 3]])
+	end
+
+	it 'should then calculate the order total' do
+		expect(Takeaway.calculate_total([[1, 8], [2, 6], [1, 3]])).to eq 23
+	end
+
+	it 'should accept order as a string and calculate the total' do
 		Takeaway.place_order("1 Fiorentina, 2 Margherita, 1 dip, £23")
-		expect(Takeaway.order_item_split).to eq()
+		expect(Takeaway.order_total).to eq 23
 	end
 
-	xit 'should calculate the order total' do
-		Takeaway.place_order("1 Fiorentina, 2 Margherita, 1 dip, £26")
-		expect(Takeaway.calculate_total).to eq 23
-	end
-
-	xit 'should not accept an order with an invalid total' do
+	it 'should not accept an order with an invalid total' do
 		expect{ Takeaway.place_order("1 Fiorentina, 2 Margherita, 1 dip, £58") }.to raise_error
 	end
 
-	it 'should send a text saying that your order will be delivered in one hour' do
-		t = Time.now + (60*60)
-    @delivery_time = t.strftime("%H:%M")
-		stub_request(:post, "https://#{Secrets::ACCOUNT_SID}:#{Secrets::AUTH_TOKEN}@api.twilio.com/*").
-         with(:body => {"Body"=>"Thanks for your order! Your meal will be delivered by #{@delivery_time}. You fat bastard", "From"=>"+441803503004", "To"=>"+447986347379"}).
-         to_return(:status => 200, :body => "", :headers => {})
-		end
+	it 'should send you a text saying that your order will be delivered in an hour' do
+		expect(Takeaway.client.account.messages).to receive(:create)
+		Takeaway.send_sms
+	end
 
 
 end
