@@ -6,7 +6,7 @@ class Takeaway
 
 	include Secrets
 
-	attr_reader :client, :user_total, :order_total
+	attr_reader :user_total, :order_total
 
 	PRICE_LIST = {"Fiorentina" => 8, "Hawaiian" => 9, "Margherita" => 6, "Pepperoni" => 8, "dip" => 3}
 
@@ -16,7 +16,6 @@ class Takeaway
 		order = get_quantities_and_products(order)
 		order = substitute_in_prices(order)
 		@order_total = calculate_total(order)
-		
 		raise "That total isn't right." if @order_total != user_total
 		"Order placed!"
 	end
@@ -46,12 +45,12 @@ class Takeaway
     t = Time.now + (60*60)
     @delivery_time = t.strftime("%H:%M")
     @client = Twilio::REST::Client.new Secrets::ACCOUNT_SID, Secrets::AUTH_TOKEN
-    @client.account.messages.create({
-        :from => '+441803503004',
-        :to => '+447986347379',
-        :body => "Thanks for your order! Your meal will be delivered by #{@delivery_time}. You fat bastard"
-    	})
+    @client.account.messages.create({:from => '+441803503004', :to => '+447986347379', :body => "Thanks for your order! Your meal will be delivered by #{@delivery_time}. You fat bastard"})
     puts "Message sent: 'Thanks for your order! Your meal will be delivered by #{@delivery_time}. You fat bastard'"
+	end
+
+	def client
+		@client
 	end
 
 end

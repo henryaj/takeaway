@@ -49,7 +49,11 @@ describe Takeaway do
 	end
 
 	it 'should send you a text saying that your order will be delivered in an hour' do
-		expect(takeaway.client.account.messages).to receive(:create)
+		# let(:twilio) {double :twilio}
+		# allow(Twilio::REST::Client).to receive(:new)
+		
+		# expect(:client).to receive(:create)
+		stub_request(:any, /.*/)
 		takeaway.send_sms
 	end
 
