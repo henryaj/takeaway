@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'twilio-ruby'
 require_relative '../lib/twilio'
- 
+
 class Takeaway
 
 	include Secrets
@@ -49,18 +49,19 @@ class Takeaway
     puts "Message sent: 'Thanks for your order! Your meal will be delivered by #{@delivery_time}. You fat bastard'"
 	end
 
-	def client
-		@client
-	end
-
 end
 
 # this bit runs only if called from the command line,
 # not if run in rspec
 if __FILE__==$0
-	order = ARGV.join
-	raise "You didn't specify an order!" if ARGV == []
-	takeaway = Takeaway.new
-	takeaway.place_order(order)
-	takeaway.send_sms
+	if ARGV.join == "menu"
+		puts Takeaway::PRICE_LIST
+	else
+		order = ARGV.join
+		raise "You didn't specify an order!" if ARGV == []
+		takeaway = Takeaway.new
+		takeaway.place_order(order)
+		takeaway.send_sms
+	end
 end
+

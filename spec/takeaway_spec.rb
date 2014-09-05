@@ -1,6 +1,6 @@
 require 'takeaway'
 require 'twilio'
-require 'webmock/rspec'
+# require 'webmock/rspec'
 
 describe Takeaway do
 
@@ -49,11 +49,7 @@ describe Takeaway do
 	end
 
 	it 'should send you a text saying that your order will be delivered in an hour' do
-		# let(:twilio) {double :twilio}
-		# allow(Twilio::REST::Client).to receive(:new)
-		
-		# expect(:client).to receive(:create)
-		stub_request(:any, /.*/)
+		expect(takeaway).to receive(:send_sms)
 		takeaway.send_sms
 	end
 
